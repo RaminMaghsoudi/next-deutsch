@@ -1,0 +1,32 @@
+.SatzBox {
+  width: 220px;
+  display: flex;
+  flex-direction: row;
+  margin-left: 15px;
+  font-family: CL;
+  transition: 0.3s;
+  color: rgb(93, 94, 104);
+  cursor: pointer;
+}
+.IconBox {
+  width: 15px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: 2px;
+}
+.SatzText {
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: rgb(0, 35, 37, 0.5);
+  transition: 1s;
+}
+.SatzText:hover {
+  color: rgb(0, 35, 37);
+}
+.active {
+  color: rgb(0, 35, 37);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}

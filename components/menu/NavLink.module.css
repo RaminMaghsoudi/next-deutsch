@@ -1,0 +1,25 @@
+.active {
+  background: linear-gradient(90deg, #000000, #000000);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: -5px;
+  font-family: C;
+}
+.link {
+  text-decoration: none;
+  margin-left: 35px;
+  cursor: pointer;
+  color: #646464;
+  transition: 0.5s;
+  margin-top: -5px;
+}
+.link:hover,
+.link:active {
+  color: #000000;
+}
+.Icon {
+  position: relative;
+  top: 3px;
+  right: 5px;
+}

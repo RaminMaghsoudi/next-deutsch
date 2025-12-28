@@ -1,0 +1,46 @@
+.HeaderPage {
+  width: 100%;
+  min-height: 50px;
+  background-color: rgba(129, 129, 129, 0.1);
+  box-shadow: 0 0 0.5rem black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  font-family: CL;
+  font-size: 0.95rem;
+}
+.Suche {
+  margin-right: 1rem;
+  width: 200px;
+  height: 25px;
+  border: 1px solid rgba(129, 129, 129, 0.3);
+  outline: none;
+  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: rgba(202, 198, 198, 0.1);
+}
+.HeaderPageRight {
+  display: flex;
+  flex-direction: row;
+}
+.Chars {
+  display: flex;
+  flex-direction: row;
+}
+.Char {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-right: 4px;
+  color: #646464;
+  background-color: rgba(202, 198, 198, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(129, 129, 129, 0.3);
+}
