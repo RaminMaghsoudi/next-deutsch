@@ -1,29 +1,34 @@
-const Database = require("better-sqlite3");
-const db = new Database("meals.db");
+const sql = require("better-sqlite3");
+const db = sql("deutsch.db");
 
-const nd = [
+const deutschSlugs = [
   {
-    title: "Pommes oder Salat, Junior?",
-    text: "juicy-cheese-burger",
+    title: "",
+    text: "",
   },
 ];
+
 db.prepare(
   `
-  CREATE TABLE IF NOT EXISTS deutsch_table (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL UNIQUE,
-    text TEXT NOT NULL
-  )
+   CREATE TABLE IF NOT EXISTS deutsch_table (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       title TEXT NOT NULL ,
+       text TEXT NOT NULL
+    )
 `
 ).run();
-
-const stmt = db.prepare(`
-  INSERT INTO deutsch_table (title, text)
-  VALUES (@title, @text)
-`);
-
-for (const deutsch of nd) {
-  stmt.run(meal);
+function initData() {
+  const stmt = db.prepare(`INSERT INTO deutsch_table VALUES ( @title, @text)`);
+  for (const ds of deutschSlugs) {
+    const cleanTitle = (ds.title || "").trim();
+    const cleanText = (ds.text || "").trim();
+    if (cleanTitle || cleanText) {
+      stmt.run({
+        title: cleanTitle || "",
+        text: cleanText || "",
+      });
+    }
+  }
 }
 
-console.log("✅ Database initialized successfully");
+initData();

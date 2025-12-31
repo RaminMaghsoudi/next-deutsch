@@ -26,7 +26,7 @@ export default function Satzen({ index, Satz }) {
             : classess.SatzText
         }
       >
-        {Satz}
+        {Satz.title}
       </Link>
     </Box>
   );

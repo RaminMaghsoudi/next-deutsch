@@ -1,3 +1,4 @@
+// Updated: components/hear/Setting.js (Replace the entire component with this)
 "use client";
 import {
   Button,
@@ -12,16 +13,18 @@ import {
 } from "@mui/material";
 import React from "react";
 import { IoSettingsOutline } from "react-icons/io5";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { CiSaveUp2 } from "react-icons/ci";
 import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
 import { BsTablet } from "react-icons/bs";
 import { BsFileEarmarkText } from "react-icons/bs";
 import { SlDoc } from "react-icons/sl";
-import { BiMessageSquareEdit } from "react-icons/bi";
+import { useParams, useRouter } from "next/navigation";
 
 const Setting = () => {
+  const params = useParams();
+  const id = params.slug;
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -29,10 +32,41 @@ const Setting = () => {
   };
   const handleClose = (e) => {
     setAnchorEl(null);
-    if (e === "Neues Dokument") setOpenModal(true);
   };
-  const [openModal, setOpenModal] = useState(false);
-  const [Type, setType] = useState("");
+  const [openModal, setOpenModal] = useState("");
+  const [type, setType] = useState("");
+  const router = useRouter();
+
+  const handleEdit = async () => {
+    try {
+      const res = await fetch(`/api/satz/${Number(params.slug) + 1}`);
+      if (res.ok) {
+        const data = await res.json();
+        setType(data.title || "");
+      } else {
+        console.error("Failed to fetch title");
+      }
+    } catch (error) {
+      console.error("Error fetching title:", error);
+    }
+  };
+  const handleDelete = async () => {
+    if (!confirm("Sind Sie sicher, dass Sie löschen möchten?")) return;
+    try {
+      const res = await fetch(`/api/satz/${Number(params.slug) + 1}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        router.push("/Satz-Regeln");
+        router.refresh();
+      } else {
+        console.error("Failed to fetch title");
+      }
+    } catch (error) {
+      console.error("Error fetching title:", error);
+    }
+  };
+
   return (
     <Fragment>
       <IconButton
@@ -96,15 +130,35 @@ const Setting = () => {
         </MenuItem>
         <Divider />
         <MenuItem
-          onClick={(e) => handleClose("Neues Dokument")}
+          onClick={() => {
+            handleClose();
+            setOpenModal("Neues Dokument");
+          }}
           sx={{ fontFamily: "CL" }}
         >
           <SlDoc style={{ marginRight: "5px" }} size={15} />
           Neues Dokument
         </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
-          <BiMessageSquareEdit style={{ marginRight: "5px" }} size={15} />
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            setOpenModal("Dokument bearbeiten");
+            handleEdit();
+          }}
+          sx={{ fontFamily: "CL" }}
+        >
+          <CiEdit style={{ marginRight: "5px" }} size={18} />
           Dokument bearbeiten
+        </MenuItem>
+        <MenuItem
+          onClick={async () => {
+            handleClose();
+            handleDelete();
+          }}
+          sx={{ fontFamily: "CL" }}
+        >
+          <CiTrash style={{ marginRight: "5px" }} size={18} />
+          Dokument löschen
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
@@ -117,12 +171,12 @@ const Setting = () => {
         </MenuItem>
       </Menu>
       <Dialog
-        open={openModal}
-        onClose={() => setOpenModal(false)}
+        open={!!openModal}
+        onClose={() => setOpenModal("")}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ fontFamily: "CL" }}>Neues Dokument</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "CL" }}>{openModal}</DialogTitle>
         <DialogContent
           sx={{
             fontFamily: "CL",
@@ -133,9 +187,9 @@ const Setting = () => {
         >
           <input
             type="text"
-            value={Type}
+            value={type || ""}
             onChange={(e) => setType(e.target.value)}
-            placeholder="Suche ..."
+            placeholder="Typ ..."
             style={{
               marginRight: "1rem",
               width: "500px",
@@ -151,20 +205,49 @@ const Setting = () => {
             }}
           />
         </DialogContent>
-
         <DialogActions>
           <Button
             variant="contained"
             sx={{
-              backgroundColor: "#16a34a", // green-600
+              backgroundColor:
+                openModal === "Neues Dokument" ? "#16a34a" : "#16a3a3ff",
               "&:hover": {
-                backgroundColor: "#15803d", // green-700
+                backgroundColor:
+                  openModal === "Neues Dokument" ? "#15803d" : "#138181ff",
               },
               marginRight: "1rem",
               marginBottom: "1rem",
             }}
+            onClick={async () => {
+              if (openModal === "Neues Dokument") {
+                await fetch("/api", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ title: type, text: "" }),
+                });
+              } else if (openModal === "Dokument bearbeiten") {
+                try {
+                  const res = await fetch(`/api/satz/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title: type }),
+                  });
+                  if (res.ok) {
+                    console.log("OK OK");
+                  } else {
+                    const errorText = await res.text();
+                    console.error("خطا در ویرایش:", res.status, errorText);
+                  }
+                } catch (error) {
+                  console.error("ERROR : ", error);
+                }
+              }
+              router.refresh();
+              setOpenModal("");
+              setType("");
+            }}
           >
-            Erstellen
+            {openModal === "Neues Dokument" ? "Erstellen" : "Bearbeiten"}
           </Button>
         </DialogActions>
       </Dialog>

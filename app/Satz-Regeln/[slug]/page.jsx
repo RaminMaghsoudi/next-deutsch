@@ -3,5 +3,5 @@ import classess from "./page.module.css";
 
 export default async function SatzSlug({ params }) {
   const { slug } = await params;
-  return <Box className={classess.SatzSlug}></Box>;
+  return <Box className={classess.SatzSlug}>{slug}</Box>;
 }
