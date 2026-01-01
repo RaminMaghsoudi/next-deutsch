@@ -38,6 +38,10 @@ const Setting = () => {
   const router = useRouter();
 
   const handleEdit = async () => {
+    if (params.slug === undefined) {
+      setOpenModal("Kann nicht gelöscht werden");
+      return;
+    }
     try {
       const res = await fetch(`/api/satz/${Number(params.slug) + 1}`);
       if (res.ok) {
@@ -51,6 +55,10 @@ const Setting = () => {
     }
   };
   const handleDelete = async () => {
+    if (params.slug === undefined) {
+      setOpenModal("Kann nicht gelöscht werden");
+      return;
+    }
     if (!confirm("Sind Sie sicher, dass Sie löschen möchten?")) return;
     try {
       const res = await fetch(`/api/satz/${Number(params.slug) + 1}`, {
@@ -64,6 +72,12 @@ const Setting = () => {
       }
     } catch (error) {
       console.error("Error fetching title:", error);
+    }
+  };
+  const handleNew = async () => {
+    if (params.slug === undefined) {
+      setOpenModal("Kann nicht erstellt werden!");
+      return;
     }
   };
 
@@ -161,7 +175,13 @@ const Setting = () => {
           Dokument löschen
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
+        <MenuItem
+          onClick={async () => {
+            handleClose();
+            handleNew();
+          }}
+          sx={{ fontFamily: "CL" }}
+        >
           <BsFileEarmarkText style={{ marginRight: "5px" }} size={15} />
           Neuer Text
         </MenuItem>
@@ -177,79 +197,109 @@ const Setting = () => {
         fullWidth
       >
         <DialogTitle sx={{ fontFamily: "CL" }}>{openModal}</DialogTitle>
-        <DialogContent
-          sx={{
-            fontFamily: "CL",
-            display: "flex",
-            justifyContent: "center",
-            mt: 2,
-          }}
-        >
-          <input
-            type="text"
-            value={type || ""}
-            onChange={(e) => setType(e.target.value)}
-            placeholder="Typ ..."
-            style={{
-              marginRight: "1rem",
-              width: "500px",
-              height: "40px",
-              border: "1px solid rgba(129, 129, 129, 0.3)",
-              outline: "none",
-              borderRadius: "5px",
-              paddingLeft: "10px",
-              paddingRight: "10px",
-              backgroundColor: "rgba(202, 198, 198, 0.1)",
-              fontFamily: "CL",
-              fontSize: "1rem",
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor:
-                openModal === "Neues Dokument" ? "#16a34a" : "#16a3a3ff",
-              "&:hover": {
-                backgroundColor:
-                  openModal === "Neues Dokument" ? "#15803d" : "#138181ff",
-              },
-              marginRight: "1rem",
-              marginBottom: "1rem",
-            }}
-            onClick={async () => {
-              if (openModal === "Neues Dokument") {
-                await fetch("/api", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ title: type, text: "" }),
-                });
-              } else if (openModal === "Dokument bearbeiten") {
-                try {
-                  const res = await fetch(`/api/satz/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ title: type }),
-                  });
-                  if (res.ok) {
-                    console.log("OK OK");
-                  } else {
-                    const errorText = await res.text();
-                    console.error("خطا در ویرایش:", res.status, errorText);
+        {openModal === "Kann nicht gelöscht werden" ||
+        openModal === "Kann nicht erstellt werden!" ? (
+          <Fragment>
+            <Divider />
+            <DialogTitle sx={{ fontFamily: "C" }}>
+              Weil noch kein Artikel vorhanden ist oder er noch nicht ausgewählt
+              wurde.
+            </DialogTitle>
+            <DialogActions>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#ff0000ff",
+                  "&:hover": {
+                    backgroundColor: "#ee0b0bff",
+                  },
+                  marginRight: "1rem",
+                  marginBottom: "1rem",
+                }}
+                onClick={() => setOpenModal("")}
+              >
+                Schließen
+              </Button>
+            </DialogActions>
+          </Fragment>
+        ) : openModal === "Neues Dokument" ||
+          openModal === "Dokument bearbeiten" ? (
+          <Fragment>
+            <DialogContent
+              sx={{
+                fontFamily: "CL",
+                display: "flex",
+                justifyContent: "center",
+                mt: 2,
+              }}
+            >
+              <input
+                type="text"
+                value={type || ""}
+                onChange={(e) => setType(e.target.value)}
+                placeholder="Typ ..."
+                style={{
+                  marginRight: "1rem",
+                  width: "500px",
+                  height: "40px",
+                  border: "1px solid rgba(129, 129, 129, 0.3)",
+                  outline: "none",
+                  borderRadius: "5px",
+                  paddingLeft: "10px",
+                  paddingRight: "10px",
+                  backgroundColor: "rgba(202, 198, 198, 0.1)",
+                  fontFamily: "CL",
+                  fontSize: "1rem",
+                }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor:
+                    openModal === "Neues Dokument" ? "#16a34a" : "#16a3a3ff",
+                  "&:hover": {
+                    backgroundColor:
+                      openModal === "Neues Dokument" ? "#15803d" : "#138181ff",
+                  },
+                  marginRight: "1rem",
+                  marginBottom: "1rem",
+                }}
+                onClick={async () => {
+                  if (openModal === "Neues Dokument") {
+                    await fetch("/api", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ title: type, text: "" }),
+                    });
+                  } else if (openModal === "Dokument bearbeiten") {
+                    try {
+                      const res = await fetch(`/api/satz/${id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title: type }),
+                      });
+                      if (res.ok) {
+                        console.log("OK OK");
+                      } else {
+                        const errorText = await res.text();
+                        console.error("خطا در ویرایش:", res.status, errorText);
+                      }
+                    } catch (error) {
+                      console.error("ERROR : ", error);
+                    }
                   }
-                } catch (error) {
-                  console.error("ERROR : ", error);
-                }
-              }
-              router.refresh();
-              setOpenModal("");
-              setType("");
-            }}
-          >
-            {openModal === "Neues Dokument" ? "Erstellen" : "Bearbeiten"}
-          </Button>
-        </DialogActions>
+                  router.refresh();
+                  setOpenModal("");
+                  setType("");
+                }}
+              >
+                {openModal === "Neues Dokument" ? "Erstellen" : "Bearbeiten"}
+              </Button>
+            </DialogActions>
+          </Fragment>
+        ) : null}
       </Dialog>
     </Fragment>
   );

@@ -1,0 +1,48 @@
+.SimpleTextEditor {
+  width:96%;
+  margin: 0 auto;
+  font-family: CL;
+  display: flex;
+  flex-direction: column;
+}
+.Taskbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  min-height: 50px;
+  border-bottom: 1px solid #dfdfdf;
+}
+.Char {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #646464;
+  border-radius: 0px;
+  cursor: pointer;
+}
+.CharBorder {
+  border-top: 1px solid rgba(129, 129, 129, 0.3);
+  border-left: 1px solid rgba(129, 129, 129, 0.3);
+  border-bottom: 1px solid rgba(129, 129, 129, 0.3);
+  border-right: none;
+}
+.CharBorder2 {
+  border-top: 1px solid rgba(129, 129, 129, 0.3);
+  border-right: 1px solid rgba(129, 129, 129, 0.3);
+  border-bottom: 1px solid rgba(129, 129, 129, 0.3);
+  border-left: none;
+}
+.CharBorder3 {
+  border: 1px solid rgba(129, 129, 129, 0.3);
+}
+.CharRadios1 {
+  border-radius: 3px 0 0 3px;
+}
+.CharRadios2 {
+  border-radius: 0 3px 3px 0;
+}
