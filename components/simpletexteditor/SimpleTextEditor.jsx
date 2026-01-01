@@ -83,6 +83,55 @@ export default function SimpleTextEditor() {
     }
   };
 
+  const handleInput = (e) => {
+    setContent(e.currentTarget.innerHTML);
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.style.height = "15px";
+    let child = editor.firstChild;
+    while (child) {
+      const nextChild = child.nextSibling;
+      if (
+        child.tagName === "BR" ||
+        (child.tagName === "DIV" &&
+          (child.innerHTML === "" ||
+            child.innerHTML === "<br>" ||
+            child.textContent.trim() === ""))
+      ) {
+        editor.removeChild(child);
+      }
+
+      child = nextChild;
+    }
+    if (editor.innerText.trim() === "") {
+      editor.innerHTML = "";
+      editor.style.height = "15px";
+      return;
+    }
+    const scrollHeight = editor.scrollHeight;
+    const text = editor.innerText || "";
+    const lines = text.split("\n").length;
+    const hasTrailingNewline = text.endsWith("\n");
+    const lineCount = hasTrailingNewline ? lines + 1 : lines;
+    let calculatedHeight = lineCount * 15;
+    let newHeight = Math.max(calculatedHeight, scrollHeight);
+    newHeight = Math.max(newHeight, 15);
+    editor.style.height = `${newHeight}px`;
+  };
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.style.height = "15px";
+
+    if (!content || content.trim() === "" || content === "<br>") {
+      editor.style.height = "15px";
+      return;
+    }
+
+    editor.style.height = `${Math.max(editor.scrollHeight, 15)}px`;
+  }, [content]);
+
   return (
     <Box className={classess.SimpleTextEditor}>
       <Box className={classess.Taskbar}>
@@ -184,27 +233,27 @@ export default function SimpleTextEditor() {
           </Box>
         ))}
       </Box>
-
       <Box
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
-        onInput={(e) => setContent(e.currentTarget.innerHTML)}
         dir="auto"
         spellCheck={false}
+        onInput={handleInput}
         sx={{
-          minHeight: "400px",
-          p: 3,
-          border: "1px solid #ccc",
+          minHeight: "15px",
+          overflow: "hidden",
           borderTop: "none",
           borderRadius: "0 0 8px 8px",
           outline: "none",
           bgcolor: "white",
-          fontSize: "18px",
-          lineHeight: 1.8,
-          fontFamily: "CL, Tahoma, Arial, sans-serif",
+          fontSize: "0.9rem",
+          lineHeight: 1.4,
+          fontFamily: "CL",
           unicodeBidi: "plaintext",
           textRendering: "optimizeLegibility",
+          resize: "none",
+          transition: "height 0.15s ease",
         }}
       ></Box>
     </Box>
