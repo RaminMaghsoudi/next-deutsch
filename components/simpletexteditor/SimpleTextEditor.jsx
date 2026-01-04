@@ -28,6 +28,8 @@ export default function SimpleTextEditor({ setTextEditor }) {
   const textColorOpen = Boolean(textColorAnchor);
   const fontSizeOpen = Boolean(fontSizeAnchor);
   const germanOpen = Boolean(germanAnchor);
+  const [hrAnchor, setHrAnchor] = useState(null);
+  const [savedRangeForHR, setSavedRangeForHR] = useState(null);
 
   const textColors = [
     { name: "Rot", value: "#d32f2f" },
@@ -70,6 +72,32 @@ export default function SimpleTextEditor({ setTextEditor }) {
     { label: "“", value: "“" },
     { label: "–", value: "–" },
     { label: "—", value: "—" },
+  ];
+  const horizontalRules = [
+    {
+      style: { border: "0", borderTop: "1px solid #ccc", margin: "12px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "2px solid #999", margin: "14px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "4px solid #333", margin: "16px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "2px dotted #666", margin: "14px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "2px dashed #666", margin: "14px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "3px double #444", margin: "16px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "3px solid #1976d2", margin: "16px 0" },
+    },
+    {
+      style: { border: "0", borderTop: "3px solid #d32f2f", margin: "16px 0" },
+    },
   ];
   const execCommand = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -149,6 +177,45 @@ export default function SimpleTextEditor({ setTextEditor }) {
     handleInput({ currentTarget: editor });
     setSavedRange(null);
     setGermanAnchor(null);
+  };
+  const insertHorizontalRule = (style) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor.focus();
+    const selection = window.getSelection();
+    let range;
+    if (
+      savedRangeForHR &&
+      savedRangeForHR.startContainer.parentElement.closest(
+        "[contenteditable]"
+      ) === editor
+    ) {
+      range = savedRangeForHR;
+    } else if (selection.rangeCount > 0) {
+      range = selection.getRangeAt(0);
+    } else {
+      range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+    }
+    range.deleteContents();
+    const hr = document.createElement("hr");
+    Object.assign(hr.style, style);
+    hr.style.display = "block";
+    hr.style.width = "100%";
+    range.insertNode(hr);
+    const emptyLine = document.createElement("div");
+    emptyLine.innerHTML = "<br>";
+    range.setStartAfter(hr);
+    range.insertNode(emptyLine);
+    range.setStart(emptyLine, 0);
+    range.setEnd(emptyLine, 0);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    handleInput({ currentTarget: editor });
+    setSavedRangeForHR(null);
+    setHrAnchor(null);
   };
 
   return (
@@ -413,7 +480,7 @@ export default function SimpleTextEditor({ setTextEditor }) {
             }
             handleGermanClick(event);
           }}
-          className={`${classess.Char} ${classess.CharBorder3}`}
+          className={`${classess.Char} ${classess.CharBorder}`}
           sx={{
             cursor: "pointer",
             display: "flex",
@@ -469,6 +536,100 @@ export default function SimpleTextEditor({ setTextEditor }) {
                   }}
                 >
                   {item.label}
+                </Box>
+              ))}
+            </Paper>
+          </ClickAwayListener>
+        </Popper>
+        <Box
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(event) => {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              setSavedRangeForHR(selection.getRangeAt(0).cloneRange());
+            } else {
+              setSavedRangeForHR(null);
+            }
+            setHrAnchor(hrAnchor ? null : event.currentTarget);
+          }}
+          className={`${classess.Char} ${classess.CharBorder3}`}
+          sx={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.2rem",
+            minWidth: "35px",
+          }}
+          title="Horizontale Linie"
+        >
+          <Box
+            sx={{
+              width: "20px",
+              height: "2px",
+              bgcolor: "#666",
+              borderRadius: "1px",
+            }}
+          />
+        </Box>
+        <Popper
+          open={Boolean(hrAnchor)}
+          anchorEl={hrAnchor}
+          placement="bottom-start"
+          modifiers={[{ name: "offset", options: { offset: [0, 8] } }]}
+          sx={{ zIndex: 1300 }}
+        >
+          <ClickAwayListener onClickAway={() => setHrAnchor(null)}>
+            <Paper
+              elevation={8}
+              sx={{
+                p: 1.5,
+                bgcolor: "background.paper",
+                borderRadius: 2,
+                width: 240,
+                maxHeight: 400,
+                overflowY: "auto",
+              }}
+            >
+              {horizontalRules.map((rule, index) => (
+                <Box
+                  key={index}
+                  onClick={() => insertHorizontalRule(rule.style)}
+                  sx={{
+                    py: 1.5,
+                    px: 2,
+                    cursor: "pointer",
+                    borderRadius: 2,
+                    "&:hover": { bgcolor: "action.hover" },
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "80%",
+                      height: rule.style.borderTop.includes("4px")
+                        ? "4px"
+                        : rule.style.borderTop.includes("3px")
+                        ? "3px"
+                        : rule.style.borderTop.includes("2px")
+                        ? "2px"
+                        : "1px",
+                      borderTop: rule.style.borderTop
+                        .replace("margin: 14px 0", "")
+                        .trim(),
+                      borderTopStyle: rule.style.borderTop.includes("dotted")
+                        ? "dotted"
+                        : rule.style.borderTop.includes("dashed")
+                        ? "dashed"
+                        : rule.style.borderTop.includes("double")
+                        ? "double"
+                        : "solid",
+                    }}
+                  />
                 </Box>
               ))}
             </Paper>
