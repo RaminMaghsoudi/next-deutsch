@@ -94,8 +94,9 @@ const Setting = () => {
         body: JSON.stringify({ text: TextEditor }),
       });
 
-      if (res.ok) setOpenModal("");
-      else console.log("Not OK!");
+      if (res.ok) {
+        setOpenModal("");
+      } else console.log("Not OK!");
     } catch (err) {
       console.error(err);
       console.log("Error mit Server");
