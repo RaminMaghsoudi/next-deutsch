@@ -21,6 +21,8 @@ import { BsTablet } from "react-icons/bs";
 import { BsFileEarmarkText } from "react-icons/bs";
 import { SlDoc } from "react-icons/sl";
 import { useParams, useRouter } from "next/navigation";
+import SimpleTextEditor from "../simpletexteditor/SimpleTextEditor";
+import { FaCheck } from "react-icons/fa6";
 
 const Setting = () => {
   const params = useParams();
@@ -36,6 +38,7 @@ const Setting = () => {
   const [openModal, setOpenModal] = useState("");
   const [type, setType] = useState("");
   const router = useRouter();
+  const [TextEditor, setTextEditor] = useState("");
 
   const handleEdit = async () => {
     if (params.slug === undefined) {
@@ -78,6 +81,24 @@ const Setting = () => {
     if (params.slug === undefined) {
       setOpenModal("Kann nicht erstellt werden!");
       return;
+    }
+  };
+  const handleSave = async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`/api/satz/${id + 1}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: TextEditor }),
+      });
+
+      if (res.ok) setOpenModal("");
+      else console.log("Not OK!");
+    } catch (err) {
+      console.error(err);
+      console.log("Error mit Server");
     }
   };
 
@@ -178,6 +199,7 @@ const Setting = () => {
         <MenuItem
           onClick={async () => {
             handleClose();
+            setOpenModal("Neuer Text");
             handleNew();
           }}
           sx={{ fontFamily: "CL" }}
@@ -195,8 +217,28 @@ const Setting = () => {
         onClose={() => setOpenModal("")}
         maxWidth="sm"
         fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            width: openModal === "Neuer Text" ? "75%" : "50%",
+            maxWidth: "none",
+            margin: "16px",
+          },
+        }}
       >
-        <DialogTitle sx={{ fontFamily: "CL" }}>{openModal}</DialogTitle>
+        <DialogTitle
+          sx={{
+            fontFamily: "CL",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          {openModal}
+          {openModal === "Neuer Text" ? (
+            <FaCheck style={{ cursor: "pointer" }} onClick={handleSave} />
+          ) : null}
+        </DialogTitle>
         {openModal === "Kann nicht gelöscht werden" ||
         openModal === "Kann nicht erstellt werden!" ? (
           <Fragment>
@@ -299,6 +341,8 @@ const Setting = () => {
               </Button>
             </DialogActions>
           </Fragment>
+        ) : openModal === "Neuer Text" ? (
+          <SimpleTextEditor setTextEditor={setTextEditor} />
         ) : null}
       </Dialog>
     </Fragment>

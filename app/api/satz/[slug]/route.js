@@ -1,4 +1,9 @@
-import { deleteSatz, fetchDataSatz, updateSatz } from "@/lib/Deutsch";
+import {
+  deleteSatz,
+  fetchDataSatz,
+  updateSatz,
+  updateSatzText,
+} from "@/lib/Deutsch";
 
 export async function GET(request, { params: paramsPromise }) {
   const params = await paramsPromise;
@@ -14,7 +19,8 @@ export async function PUT(request, { params: paramsPromise }) {
   const params = await paramsPromise;
   const id = params.slug;
   const body = await request.json();
-  updateSatz(id, body.title);
+  if (body.title !== undefined) updateSatz(id, body.title);
+  if (body.text !== undefined) updateSatzText(id, body.text);
   return Response.json({ success: true });
 }
 
