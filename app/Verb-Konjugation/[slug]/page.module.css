@@ -1,0 +1,9 @@
+.SatzSlug {
+  width: calc(100% - 250px);
+  height: calc(100vh - 50px);
+  display: flex;
+  flex-direction: column;
+  padding-left: 15px;
+  padding-right: 15px;
+  line-height: 1;
+}

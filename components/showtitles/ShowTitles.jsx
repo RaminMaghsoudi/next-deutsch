@@ -1,13 +1,13 @@
 "use client";
 import { Box } from "@mui/material";
 import { BiChevronRight } from "react-icons/bi";
-import classess from "./Satzen.module.css";
+import classess from "./ShowTitles.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function Satzen({ index, Satz }) {
+export default function ShowTitles({ index, Title, Type }) {
   const path = usePathname();
-  const href = `/Satz-Regeln/${index}`;
+  const href = `/${Type}/${index}`;
   const isActive = path === href;
 
   return (
@@ -26,7 +26,7 @@ export default function Satzen({ index, Satz }) {
             : classess.SatzText
         }
       >
-        {Satz.title}
+        {Title.title}
       </Link>
     </Box>
   );

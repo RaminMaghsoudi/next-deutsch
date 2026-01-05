@@ -1,10 +1,10 @@
-.SaztLayout {
+.Wrapper {
   width: 100%;
   min-height: calc(100vh - 50px);
   display: flex;
   flex-direction: row;
 }
-.SatzRegeln {
+.WrapperBox {
   width: 250px;
   min-height: calc(100vh - 50px);
   box-shadow: 0 0 0.1rem rgba(129, 129, 129, 0.5);

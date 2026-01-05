@@ -19,16 +19,22 @@ import { CiEdit } from "react-icons/ci";
 import { CiTrash } from "react-icons/ci";
 import { BsTablet } from "react-icons/bs";
 import { BsFileEarmarkText } from "react-icons/bs";
-import { SlDoc } from "react-icons/sl";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import SimpleTextEditor from "../simpletexteditor/SimpleTextEditor";
 import { FaCheck } from "react-icons/fa6";
 
 const Setting = () => {
   const params = useParams();
+  const pathname = usePathname();
   const id = params.slug;
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  let tableType = "";
+  if (pathname === "/Verb-Konjugation") {
+    tableType = "verb";
+  } else if (pathname === "/Satz-Regeln") {
+    tableType = "deutsch";
+  }
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -152,39 +158,26 @@ const Setting = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
-          <CiSaveUp2 style={{ marginRight: "5px" }} size={18} />
-          Speichern
-        </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
-          <CiEdit style={{ marginRight: "5px" }} size={18} />
-          Bearbeiten
-        </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
-          <CiTrash style={{ marginRight: "5px" }} size={18} />
-          Löschen
-        </MenuItem>
-        <Divider />
         <MenuItem
           onClick={() => {
             handleClose();
-            setOpenModal("Neues Dokument");
+            setOpenModal("Erstellen");
           }}
           sx={{ fontFamily: "CL" }}
         >
-          <SlDoc style={{ marginRight: "5px" }} size={15} />
-          Neues Dokument
+          <CiSaveUp2 style={{ marginRight: "5px" }} size={18} />
+          Erstellen
         </MenuItem>
         <MenuItem
           onClick={() => {
             handleClose();
-            setOpenModal("Dokument bearbeiten");
+            setOpenModal("Bearbeiten");
             handleEdit();
           }}
           sx={{ fontFamily: "CL" }}
         >
           <CiEdit style={{ marginRight: "5px" }} size={18} />
-          Dokument bearbeiten
+          Bearbeiten
         </MenuItem>
         <MenuItem
           onClick={async () => {
@@ -194,7 +187,7 @@ const Setting = () => {
           sx={{ fontFamily: "CL" }}
         >
           <CiTrash style={{ marginRight: "5px" }} size={18} />
-          Dokument löschen
+          Löschen
         </MenuItem>
         <Divider />
         <MenuItem
@@ -208,144 +201,171 @@ const Setting = () => {
           <BsFileEarmarkText style={{ marginRight: "5px" }} size={15} />
           Neuer Text
         </MenuItem>
-        <MenuItem onClick={handleClose} sx={{ fontFamily: "CL" }}>
+        <MenuItem
+          onClick={async () => {
+            handleClose();
+            setOpenModal("Tisch");
+            handleNew();
+          }}
+          sx={{ fontFamily: "CL" }}
+        >
           <BsTablet style={{ marginRight: "5px" }} size={15} />
           Tisch
         </MenuItem>
       </Menu>
-      <Dialog
-        open={!!openModal}
-        onClose={() => setOpenModal("")}
-        maxWidth="sm"
-        fullWidth
-        sx={{
-          "& .MuiDialog-paper": {
-            width: openModal === "Neuer Text" ? "75%" : "50%",
-            maxWidth: "none",
-            margin: "16px",
-          },
-        }}
-      >
-        <DialogTitle
+      {pathname === "/" ? null : (
+        <Dialog
+          open={!!openModal}
+          onClose={() => setOpenModal("")}
+          maxWidth="sm"
+          fullWidth
           sx={{
-            fontFamily: "CL",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
+            "& .MuiDialog-paper": {
+              width:
+                openModal === "Neuer Text"
+                  ? "75%"
+                  : openModal === "Tisch"
+                  ? "90%"
+                  : "50%",
+              maxWidth: "none",
+              margin: "16px",
+            },
           }}
         >
-          {openModal}
-          {openModal === "Neuer Text" ? (
-            <FaCheck style={{ cursor: "pointer" }} onClick={handleSave} />
-          ) : null}
-        </DialogTitle>
-        {openModal === "Kann nicht gelöscht werden" ||
-        openModal === "Kann nicht erstellt werden!" ? (
-          <Fragment>
-            <Divider />
-            <DialogTitle sx={{ fontFamily: "C" }}>
-              Weil noch kein Artikel vorhanden ist oder er noch nicht ausgewählt
-              wurde.
-            </DialogTitle>
-            <DialogActions>
-              <Button
-                variant="contained"
+          <DialogTitle
+            sx={{
+              fontFamily: "CL",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            {openModal}
+            {openModal === "Neuer Text" ? (
+              <FaCheck style={{ cursor: "pointer" }} onClick={handleSave} />
+            ) : null}
+          </DialogTitle>
+          {openModal === "Kann nicht gelöscht werden" ||
+          openModal === "Kann nicht erstellt werden!" ? (
+            <Fragment>
+              <Divider />
+              <DialogTitle sx={{ fontFamily: "C" }}>
+                Weil noch kein Artikel vorhanden ist oder er noch nicht
+                ausgewählt wurde.
+              </DialogTitle>
+              <DialogActions>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#ff0000ff",
+                    "&:hover": {
+                      backgroundColor: "#ee0b0bff",
+                    },
+                    marginRight: "1rem",
+                    marginBottom: "1rem",
+                  }}
+                  onClick={() => setOpenModal("")}
+                >
+                  Schließen
+                </Button>
+              </DialogActions>
+            </Fragment>
+          ) : openModal === "Erstellen" || openModal === "Bearbeiten" ? (
+            <Fragment>
+              <DialogContent
                 sx={{
-                  backgroundColor: "#ff0000ff",
-                  "&:hover": {
-                    backgroundColor: "#ee0b0bff",
-                  },
-                  marginRight: "1rem",
-                  marginBottom: "1rem",
-                }}
-                onClick={() => setOpenModal("")}
-              >
-                Schließen
-              </Button>
-            </DialogActions>
-          </Fragment>
-        ) : openModal === "Neues Dokument" ||
-          openModal === "Dokument bearbeiten" ? (
-          <Fragment>
-            <DialogContent
-              sx={{
-                fontFamily: "CL",
-                display: "flex",
-                justifyContent: "center",
-                mt: 2,
-              }}
-            >
-              <input
-                type="text"
-                value={type || ""}
-                onChange={(e) => setType(e.target.value)}
-                placeholder="Typ ..."
-                style={{
-                  marginRight: "1rem",
-                  width: "500px",
-                  height: "40px",
-                  border: "1px solid rgba(129, 129, 129, 0.3)",
-                  outline: "none",
-                  borderRadius: "5px",
-                  paddingLeft: "10px",
-                  paddingRight: "10px",
-                  backgroundColor: "rgba(202, 198, 198, 0.1)",
                   fontFamily: "CL",
-                  fontSize: "1rem",
-                }}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor:
-                    openModal === "Neues Dokument" ? "#16a34a" : "#16a3a3ff",
-                  "&:hover": {
-                    backgroundColor:
-                      openModal === "Neues Dokument" ? "#15803d" : "#138181ff",
-                  },
-                  marginRight: "1rem",
-                  marginBottom: "1rem",
-                }}
-                onClick={async () => {
-                  if (openModal === "Neues Dokument") {
-                    await fetch("/api", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ title: type, text: "" }),
-                    });
-                  } else if (openModal === "Dokument bearbeiten") {
-                    try {
-                      const res = await fetch(`/api/satz/${id}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ title: type }),
-                      });
-                      if (res.ok) {
-                        console.log("OK OK");
-                      } else {
-                        const errorText = await res.text();
-                        console.error("خطا در ویرایش:", res.status, errorText);
-                      }
-                    } catch (error) {
-                      console.error("ERROR : ", error);
-                    }
-                  }
-                  router.refresh();
-                  setOpenModal("");
-                  setType("");
+                  display: "flex",
+                  justifyContent: "center",
+                  mt: 2,
                 }}
               >
-                {openModal === "Neues Dokument" ? "Erstellen" : "Bearbeiten"}
-              </Button>
-            </DialogActions>
-          </Fragment>
-        ) : openModal === "Neuer Text" ? (
-          <SimpleTextEditor setTextEditor={setTextEditor} />
-        ) : null}
-      </Dialog>
+                <input
+                  type="text"
+                  value={type || ""}
+                  onChange={(e) => setType(e.target.value)}
+                  placeholder="Typ ..."
+                  style={{
+                    marginRight: "1rem",
+                    width: "500px",
+                    height: "40px",
+                    border: "1px solid rgba(129, 129, 129, 0.3)",
+                    outline: "none",
+                    borderRadius: "5px",
+                    paddingLeft: "10px",
+                    paddingRight: "10px",
+                    backgroundColor: "rgba(202, 198, 198, 0.1)",
+                    fontFamily: "CL",
+                    fontSize: "1rem",
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor:
+                      openModal === "Erstellen" ? "#16a34a" : "#16a3a3ff",
+                    "&:hover": {
+                      backgroundColor:
+                        openModal === "Erstellen" ? "#15803d" : "#138181ff",
+                    },
+                    marginRight: "1rem",
+                    marginBottom: "1rem",
+                  }}
+                  onClick={async () => {
+                    if (openModal === "Erstellen") {
+                      await fetch("/api", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          table: tableType,
+                          title: type,
+                          text: "",
+                          tables: "",
+                          special: "",
+                          Präsens: "",
+                          Präteritum: "",
+                          Perfekt: "",
+                          Futur: "",
+                        }),
+                      });
+                    } else if (openModal === "Bearbeiten") {
+                      try {
+                        const res = await fetch(`/api/satz/${id}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ title: type }),
+                        });
+                        if (res.ok) {
+                          console.log("OK OK");
+                        } else {
+                          const errorText = await res.text();
+                          console.error(
+                            "خطا در ویرایش:",
+                            res.status,
+                            errorText
+                          );
+                        }
+                      } catch (error) {
+                        console.error("ERROR : ", error);
+                      }
+                    }
+                    router.refresh();
+                    setOpenModal("");
+                    setType("");
+                  }}
+                >
+                  {openModal === "Erstellen" ? "Erstellen" : "Bearbeiten"}
+                </Button>
+              </DialogActions>
+            </Fragment>
+          ) : openModal === "Neuer Text" ? (
+            <SimpleTextEditor setTextEditor={setTextEditor} />
+          ) : null}
+        </Dialog>
+      )}
     </Fragment>
   );
 };
